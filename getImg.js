@@ -4,7 +4,7 @@
 // @version      0.2
 // @description  try to take over the world!
 // @author       Warrenww
-// @match        https://www.facebook.com/
+// @match        https://www.facebook.com/*
 // @grant        none
 // ==/UserScript==
 (function() {
@@ -24,6 +24,7 @@
   }
 
   const Images = [];
+  const DisplayImages = [];
   let imgsrc = null;
 
   const btnStyle = `
@@ -51,6 +52,7 @@
       padding: 1em;
       display: flex;
       flex-direction: column;
+      transition: .3s ease-in-out;
     `
   });
   document.body.append(container);
@@ -110,13 +112,34 @@
   });
   container.append(imagesCountInput);
 
-
   const LoadImages = async () => {
     const n = Number(imagesCountInput.value);
     if (Number.isNaN(n)) n = 1;
 
     const s = Number(sizeFilterInput.value);
     if (Number.isNaN(n)) n = 0;
+
+    const ImgBox = CreateElement({
+      type: 'div',
+      style: `
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #3338;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+        color: white;
+        font-size: 2em;
+      `,
+      id: 'my-img-container',
+      onclick: () => document.getElementById('my-img-container').remove(),
+    });
+
+    document.body.append(ImgBox);
 
     while (Images.length < n) {
       scrollParent.scrollTop = scrollParent.scrollHeight;
@@ -126,10 +149,13 @@
         .filter(x => x.width > s)
         .forEach((x, i) => Images[i] = x);
 
-      btn_2.innerText = 'Choose from ' + Images.length;
+      ImgBox.innerText = `Loading ${Images.length} / ${n}`
       await sleep(100);
     }
+    ImgBox.remove();
+    Images.forEach((x, i) => DisplayImages[i] = x);
   }
+
   const btn_1 = CreateElement({
     type: 'button',
     text: 'Load image',
@@ -138,26 +164,40 @@
   });
   container.append(btn_1);
 
-  const choose = () => {
-    document.getElementById('my-img-container') && document.getElementById('my-img-container').remove();
+  const shuffle = () => DisplayImages.sort((a, b) => (Math.random() - 0.5));
 
-    const idx = parseInt(Images.length * Math.random());
-    const temp = Images.splice(idx, 1)[0];
-    if(!temp) return;
-    const fraction = Math.min(window.innerWidth / temp.width, window.innerHeight / temp.height) * 0.9;
-    imgsrc = temp.src;
-    console.log(imgsrc);
-    const canvas = document.createElement('canvas');
-    canvas.width = temp.width;
-    canvas.height = temp.height;
-    canvas.style.cssText = `
-      zoom: ${fraction};
-      box-shadow: 0 0 10px black;
-    `;
+  const btn_2 = CreateElement({
+    type: 'button',
+    style: btnStyle,
+    onclick: shuffle,
+    text: 'Shuffle',
+  });
 
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(temp,0,0,temp.width,temp.height);
+  const displayImage = (index) => {
+    const temp = DisplayImages[index];
+    if (temp) {
+      const prevCanvas = document.querySelector('#my-img-container canvas')
+      if(prevCanvas) prevCanvas.remove();
+      const fraction = Math.min(window.innerWidth / temp.width, window.innerHeight / temp.height) * 0.9;
+      imgsrc = temp.src;
+      console.log(imgsrc);
+      const canvas = document.createElement('canvas');
+      canvas.width = temp.width;
+      canvas.height = temp.height;
+      canvas.style.cssText = `
+        zoom: ${fraction};
+        box-shadow: 0 0 10px black;
+      `;
 
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(temp,0,0,temp.width,temp.height);
+
+      document.getElementById('my-img-container').append(canvas);
+    }
+  }
+
+  const start = () => {
+    let idx = 0;
     const ImgBox = CreateElement({
       type: 'div',
       style: `
@@ -173,20 +213,27 @@
         backdrop-filter: blur(5px);
       `,
       id: 'my-img-container',
-      onclick: () => document.getElementById('my-img-container').remove(),
-    })
+      onclick: () => displayImage(idx++),
+    });
 
-    ImgBox.append(canvas);
     document.body.append(ImgBox);
+    displayImage(idx);
+
+    btn_3.innerText = 'Stop';
+    btn_3.onclick = () =>{
+      ImgBox.remove();
+      btn_3.innerText = 'Start';
+      btn_3.onclick = start;
+   }
   }
 
-  const btn_2 = CreateElement({
+  const btn_3 = CreateElement({
     type: 'button',
-    text: 'Choose from ' + Images.length,
-    onclick: choose,
+    text: 'Start',
+    onclick: start,
     style: btnStyle,
   })
-  container.append(btn_2);
+  container.append(btn_3);
 }
 
 })();
