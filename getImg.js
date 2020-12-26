@@ -172,6 +172,7 @@
     onclick: shuffle,
     text: 'Shuffle',
   });
+  container.append(btn_2);
 
   const displayImage = (index) => {
     const temp = DisplayImages[index];
@@ -180,7 +181,6 @@
       if(prevCanvas) prevCanvas.remove();
       const fraction = Math.min(window.innerWidth / temp.width, window.innerHeight / temp.height) * 0.9;
       imgsrc = temp.src;
-      console.log(imgsrc);
       const canvas = document.createElement('canvas');
       canvas.width = temp.width;
       canvas.height = temp.height;
@@ -219,12 +219,28 @@
     document.body.append(ImgBox);
     displayImage(idx);
 
-    btn_3.innerText = 'Stop';
-    btn_3.onclick = () =>{
+    const stop = () => {
       ImgBox.remove();
       btn_3.innerText = 'Start';
       btn_3.onclick = start;
+      document.onkeyup = null;
    }
+
+    document.onkeyup = (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          displayImage(--idx);
+          break;
+        case 'ArrowRight':
+          displayImage(++idx);
+          break;
+        case 'Escape':
+          stop();
+      }
+    }
+
+    btn_3.innerText = 'Stop';
+    btn_3.onclick = stop
   }
 
   const btn_3 = CreateElement({
