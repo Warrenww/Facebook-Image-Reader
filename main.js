@@ -4,7 +4,7 @@
 // @version      0.3
 // @description  Browse Facebook images in a focus mode.
 // @author       Warrenww
-// @match        https://www.facebook.com/*
+// @include      /https:\/\/www\.(facebook|instagram)\.com\/.*/
 // @grant        none
 // ==/UserScript==
 (function() {
@@ -37,7 +37,7 @@
   `;
 
   window.onload = function() {
-  const scrollParent = document.getElementById('facebook');
+  const scrollParent = document.getElementById('facebook') || document.getElementById('react-root');
   const container = CreateElement({
     type: 'div',
     text: '',
@@ -146,7 +146,7 @@
     do {
       scrollParent.scrollTop = scrollParent.scrollHeight;
       Images.length = 0;
-      Array.from(document.querySelectorAll('div[role="article"] img'))
+      Array.from(document.querySelectorAll('img'))
         .filter(x => x.width > s)
         .forEach((x, i) => Images[i] = x);
 
@@ -199,8 +199,8 @@
       const prevCanvas = document.querySelector('#my-img-container canvas')
       if(prevCanvas) prevCanvas.remove();
       imgsrc = temp.src;
-      imgWidth = temp.naturalWidth || temp.width;
-      imgHeight = temp.naturalHeight || temp.height;
+      const imgWidth = temp.naturalWidth || temp.width;
+      const imgHeight = temp.naturalHeight || temp.height;
       const fraction = Math.min(window.innerWidth / imgWidth, window.innerHeight / imgHeight) * 0.9;
       const canvas = document.createElement('canvas');
       canvas.width = imgWidth;
