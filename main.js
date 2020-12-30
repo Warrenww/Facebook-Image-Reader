@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         New Userscript
 // @namespace    http://tampermonkey.net/
-// @version      0.2
-// @description  try to take over the world!
+// @version      0.3
+// @description  Browse Facebook images in a focus mode.
 // @author       Warrenww
 // @match        https://www.facebook.com/*
 // @grant        none
@@ -147,7 +147,6 @@
       scrollParent.scrollTop = scrollParent.scrollHeight;
       Images.length = 0;
       Array.from(document.querySelectorAll('div[role="article"] img'))
-        .filter(x => !x.className.includes('j1lvzwm4'))
         .filter(x => x.width > s)
         .forEach((x, i) => Images[i] = x);
 
@@ -199,18 +198,20 @@
     if (temp) {
       const prevCanvas = document.querySelector('#my-img-container canvas')
       if(prevCanvas) prevCanvas.remove();
-      const fraction = Math.min(window.innerWidth / temp.width, window.innerHeight / temp.height) * 0.9;
       imgsrc = temp.src;
+      imgWidth = temp.naturalWidth || temp.width;
+      imgHeight = temp.naturalHeight || temp.height;
+      const fraction = Math.min(window.innerWidth / imgWidth, window.innerHeight / imgHeight) * 0.9;
       const canvas = document.createElement('canvas');
-      canvas.width = temp.width;
-      canvas.height = temp.height;
+      canvas.width = imgWidth;
+      canvas.height = imgHeight;
       canvas.style.cssText = `
         zoom: ${fraction};
         box-shadow: 0 0 10px black;
       `;
 
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(temp,0,0,temp.width,temp.height);
+      ctx.drawImage(temp, 0, 0, imgWidth, imgHeight);
 
       document.getElementById('my-img-container').append(canvas);
     }

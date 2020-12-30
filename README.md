@@ -8,9 +8,8 @@
 
 ## Installation
 1. Install [Tampermonkey](https://www.tampermonkey.net/) to your browser.
-2. Download the `main.js` script.
 3. Go to the utilites tab in Tampermonkey's dashboard.
-4. Import the `main.js` from file.
+2. Paste https://raw.githubusercontent.com/Warrenww/Facebook-Image-Reader/main/main.js into `Install from URL`.
 5. Click `Install`.
 
 ## Usage
@@ -27,7 +26,6 @@
 Using the `querySelectorAll` function to choose all loaded images in each posts, and filtered by 2 filter function and store the results in an array.
 ```
 Array.from(document.querySelectorAll('div[role="article"] img'))
-  .filter(x => !x.className.includes('j1lvzwm4'))
   .filter(x => x.width > filterSize)
   .forEach((x, i) => Images[i] = x);
 ```  
