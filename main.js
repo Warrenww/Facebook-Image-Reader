@@ -97,18 +97,20 @@
   const sizeFilterInput = CreateElement({
     type: 'input',
     inputType: 'number',
-    style: 'margin: 10px 0;',
+    style: 'margin: 10px 0; border: 0;',
     placeholder: "Images size filter",
     title: "Images size filter",
+    defaultValue: 100,
   });
   container.append(sizeFilterInput);
 
   const imagesCountInput = CreateElement({
     type: 'input',
     inputType: 'number',
-    style: 'margin: 10px 0;',
+    style: 'margin: 10px 0; border: 0;',
     placeholder: "Images count",
     title: "Images count",
+    onkeypress: (e) => {if(e.key === "Enter") LoadImages()},
   });
   container.append(imagesCountInput);
 
@@ -141,7 +143,7 @@
 
     document.body.append(ImgBox);
 
-    while (Images.length < n) {
+    do {
       scrollParent.scrollTop = scrollParent.scrollHeight;
       Images.length = 0;
       Array.from(document.querySelectorAll('div[role="article"] img'))
@@ -151,7 +153,8 @@
 
       ImgBox.innerText = `Loading ${Images.length} / ${n}`
       await sleep(100);
-    }
+    } while (Images.length < n)
+
     ImgBox.remove();
     Images.forEach((x, i) => DisplayImages[i] = x);
   }
@@ -173,6 +176,23 @@
     text: 'Shuffle',
   });
   container.append(btn_2);
+
+  const downloadLink = document.createElement('a');
+  downloadLink.download = 'download.png';
+  container.append(downloadLink);
+  const download = async () => {
+    const blob = await fetch(DisplayImages[idx].src).then(res => res.blob()).then(blob => blob);
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    downloadLink.click();
+  };
+  const btn_4 = CreateElement({
+    type: 'button',
+    style: btnStyle,
+    onclick: download,
+    text: 'Download Image',
+  });
+  container.append(btn_4);
 
   const displayImage = (index) => {
     const temp = DisplayImages[index];
@@ -196,8 +216,8 @@
     }
   }
 
+  let idx = 0;
   const start = () => {
-    let idx = 0;
     const ImgBox = CreateElement({
       type: 'div',
       style: `
@@ -213,7 +233,6 @@
         backdrop-filter: blur(5px);
       `,
       id: 'my-img-container',
-      onclick: () => displayImage(idx++),
     });
 
     document.body.append(ImgBox);
@@ -222,6 +241,7 @@
     const stop = () => {
       ImgBox.remove();
       btn_3.innerText = 'Start';
+      btn_3.style.backgroundColor = '#4b8646';
       btn_3.onclick = start;
       document.onkeyup = null;
    }
@@ -229,10 +249,14 @@
     document.onkeyup = (e) => {
       switch (e.key) {
         case 'ArrowLeft':
-          displayImage(--idx);
+          idx -= 1;
+          idx = idx < 0 ? 0 : idx;
+          displayImage(idx);
           break;
         case 'ArrowRight':
-          displayImage(++idx);
+          idx += 1;
+          idx = idx >= DisplayImages.length ? DisplayImages.length - 1 : idx;
+          displayImage(idx);
           break;
         case 'Escape':
           stop();
@@ -240,15 +264,16 @@
     }
 
     btn_3.innerText = 'Stop';
-    btn_3.onclick = stop
+    btn_3.onclick = stop;
+    btn_3.style.backgroundColor = '#864646';
   }
 
   const btn_3 = CreateElement({
     type: 'button',
     text: 'Start',
     onclick: start,
-    style: btnStyle,
-  })
+    style: btnStyle + 'background-color: #4b8646;',
+  });
   container.append(btn_3);
 }
 
