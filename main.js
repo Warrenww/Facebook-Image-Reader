@@ -6,6 +6,7 @@
 // @author       Warrenww
 // @include      /https:\/\/www\.(facebook|instagram)\.com\/.*/
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/Warrenww/Facebook-Image-Reader/main/main.js
 // ==/UserScript==
 (function() {
   'use strict';
