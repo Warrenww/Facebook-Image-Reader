@@ -17,10 +17,17 @@
 - First row is for change panel position.
 - Second row is for setting image size filter, all images which width value in pixel below this will be ignored.
 - Third row is to set the minimum numbers of image should be loaded. Page will automatically scroll down and load images until the number of images reached the minimum value.
-- **Load image:** Start loading image, also can be triggered by pressing enter when `Images count` input is focused.
+- **Clear image:** Clear the stored images queue.
 - **Shuffle:** Randomly shuffle the loaded images.
 - **Download image:** Download the image currently shown.
-- **Start:** Start the focus view mode. In the focus view mode, all the original content will be blurred, and image will be displayed in the center of the screen with appropriate size. Navigate to the next/previous image by pressing left or right arrow. Press escape or click `stop` to exit the focus view mode.
+- **Start:** Load the images and start the focus view mode.
+
+In the focus view mode, all the original content will be blurred, and image will be displayed in the center of the screen with appropriate size. Navigate to the next/previous image by pressing left or right arrow. Press escape or click `stop` to exit the focus view mode.
+
+### Load images from Instagram story
+Once you have clicked the `Start` the load images process will start collecting all image on your screen, it will display a progress screen to show how many images are already loaded. This progress screen can be dismissed by clicking it. However, the loading process will remain in background. Until the number of images loaded reached the minimum value setting, the Focus view  will start.
+
+When you starting browsing the Instagram story, you can set the minimum loaded value at the first, and dismiss the progress screen. Once a new story is loaded, it will be immediately add to the images queue. After you finish, you can re-visit the story you have seen before in the focus mode. And they can be download too!
 
 ## How does it work?
 Using the `querySelectorAll` function to choose all loaded images in each posts, and filtered by 2 filter function and store the results in an array.
@@ -54,4 +61,3 @@ downloadLink.click();
 
 ## Future work
 - Batch images download.
-- Support Instagram.

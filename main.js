@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         New Userscript
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Browse Facebook images in a focus mode.
 // @author       Warrenww
 // @include      /https:\/\/www\.(facebook|instagram)\.com\/.*/
@@ -37,7 +37,7 @@
   `;
 
   window.onload = function() {
-  const scrollParent = document.getElementById('facebook') || document.getElementById('react-root');
+  const scrollParent = document.body.parentElement;
   const container = CreateElement({
     type: 'div',
     text: '',
@@ -145,24 +145,27 @@
 
     do {
       scrollParent.scrollTop = scrollParent.scrollHeight;
-      Images.length = 0;
       Array.from(document.querySelectorAll('img'))
         .filter(x => x.width > s)
-        .forEach((x, i) => Images[i] = x);
+        .forEach((x, i) => !(Images.includes(x)) && Images.push(x));
 
       ImgBox.innerText = `Loading ${Images.length} / ${n}`
       await sleep(100);
-    } while (Images.length < n)
+    } while (Images.length < n);
 
     ImgBox.remove();
     Images.forEach((x, i) => DisplayImages[i] = x);
+    return Promise.resolve();
   }
 
   const btn_1 = CreateElement({
     type: 'button',
-    text: 'Load image',
+    text: 'Clear image',
     style: btnStyle,
-    onclick: LoadImages,
+    onclick: () => {
+      Images.length = 0;
+      DisplayImages.length = 0;
+    },
   });
   container.append(btn_1);
 
@@ -218,7 +221,8 @@
   }
 
   let idx = 0;
-  const start = () => {
+  const start = async () => {
+    await LoadImages();
     const ImgBox = CreateElement({
       type: 'div',
       style: `
@@ -234,10 +238,42 @@
         backdrop-filter: blur(5px);
       `,
       id: 'my-img-container',
+      onscroll: (e) => e.stopPropagation(),
     });
 
     document.body.append(ImgBox);
     displayImage(idx);
+
+    const ImagesThumbnailContainer = CreateElement({
+      type: 'div',
+      style: `
+        width: 120px;
+        height: 90vh;
+        position: absolute;
+        overflow-y: scroll;
+        top: 5vh;
+        right: 0px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+      `
+    });
+    ImgBox.append(ImagesThumbnailContainer);
+    DisplayImages.forEach((x, i) => ImagesThumbnailContainer.append(CreateElement({
+      type: 'img',
+      src: x.src,
+      style: `
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        margin-bottom: .5em;
+        cursor: pointer;
+      `,
+      onclick: () => {
+        idx = i;
+        displayImage(i);
+      },
+    })));
 
     const stop = () => {
       ImgBox.remove();
